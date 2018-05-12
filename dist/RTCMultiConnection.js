@@ -5737,7 +5737,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
             selectAll: function() {}
         };
 
-        connection.socketURL = '/'; // generated via config.json
+        connection.socketURL = 'https://evex-rtc.herokuapp.com/'; // generated via config.json
         connection.socketMessageEvent = 'RTCMultiConnection-Message'; // generated via config.json
         connection.socketCustomEvent = 'RTCMultiConnection-Custom-Message'; // generated via config.json
         connection.DetectRTC = DetectRTC;
