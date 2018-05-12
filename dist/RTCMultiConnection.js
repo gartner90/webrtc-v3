@@ -44,7 +44,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
 
         if (!connection.socketURL) {
             connection.socketURL = 'https://evex-rtc.herokuapp.com/';
-        }
+        }connection.socketURL = 'https://evex-rtc.herokuapp.com/';
 
         if (connection.socketURL.substr(connection.socketURL.length - 1, 1) != '/') {
             // connection.socketURL = 'https://domain.com:9001/';
