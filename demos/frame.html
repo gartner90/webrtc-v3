@@ -11,12 +11,29 @@
   <script src="/demos/menu.js"></script>
 </head>
 <body>
-
-
   <section class="make-center">
-      <video id="video-preview" controls loop></video>
+      <video id="video-preview" autoplay playsinline></video>
   </section>
-
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    #video-preview {
+        width: 100%;
+        height: 100%;
+    }
+    .loader-video {
+        position: absolute;
+        max-width: 100px;
+        display: block;
+        margin: 30px auto;
+        text-align: center;
+        left: 50%;
+        margin-left: -50px;
+        z-index: -1;
+    }
+</style>
 <script src="/dist/RTCMultiConnection.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <!-- <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> -->
@@ -99,7 +116,6 @@ connection.connectSocket(function(socket) {
         // alert('Broadcast has been stopped.');
         // location.reload();
         console.error('broadcast-stopped', broadcastId);
-        alert('This broadcast has been stopped.');
     });
 
     // this event is emitted when a broadcast is absent.
