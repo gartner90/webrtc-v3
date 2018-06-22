@@ -16,8 +16,8 @@
     
      <video id="video-preview" autoplay playsinline></video>
 
-    <script src="https://evex-rtc.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
-    <script src="https://evex-rtc.herokuapp.com/socket.io/socket.io.js"></script>
+<script src="/dist/RTCMultiConnection.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.webrtc-experiment.com/common.js"></script>
   
 </body>
@@ -48,7 +48,8 @@ var videoPreview = document.getElementById('video-preview');
 var connection = new RTCMultiConnection();
 
 //connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-connection.socketURL = 'https://evex-rtc.herokuapp.com:443/';
+// connection.socketURL = 'https://evex-rtc.herokuapp.com:443/';
+connection.socketURL = '/';
 connection.autoCloseEntireSession = true;
 
 connection.session = {
