@@ -1,10 +1,139 @@
+<!-- Demo version: 2018.05.21 -->
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
-	<meta charset="UTF-8">
-	<title>Document</title>
+  <meta charset="utf-8">
+  <title>TEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 </head>
 <body>
-	DEO
+    
+    <input type="text" id="room-id" autocorrect=off autocapitalize=off size=20>
+    <button id="btn-open-room">Open Room</button>
+    <button id="btn-join-room">Join Room</button><hr>
+     <button id="btn-close">Close</button><hr>
+    
+     <video id="video-preview" autoplay playsinline></video>
+
+    <script src="https://evex-rtc.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+    <script src="https://evex-rtc.herokuapp.com/socket.io/socket.io.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/common.js"></script>
+  
 </body>
 </html>
+
+<script>
+
+
+document.getElementById('btn-open-room').onclick = function() {
+    this.disabled = true;
+    connection.open(document.getElementById('room-id').value);
+};
+
+document.getElementById('btn-join-room').onclick = function() {
+    this.disabled = true;
+    connection.join(document.getElementById('room-id').value);
+};
+
+document.getElementById('btn-close').onclick = function() {
+    connection.disconnect();
+};
+
+
+
+var videoPreview = document.getElementById('video-preview');
+
+	
+var connection = new RTCMultiConnection();
+
+//connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+connection.socketURL = 'https://evex-rtc.herokuapp.com:443/';
+connection.autoCloseEntireSession = true;
+
+connection.session = {
+    audio: true,
+    video: true
+};
+
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
+};
+
+connection.connectSocket(function(socket) {
+    console.log('socket', socket);
+    socket.on('broadcast-stopped', function(broadcastId) {
+         console.log('broadcastId', broadcastId);
+        alert('Broadcast has been stopped.');
+        location.reload();
+    });
+});
+
+connection.connectSocket(function(socket) {
+    socket.on('broadcast-stopped', function(broadcastId) {
+        // alert('Broadcast has been stopped.');
+        // location.reload();
+        console.error('broadcast-stopped', broadcastId);
+        alert('This broadcast has been stopped.');
+    });
+    
+});
+
+
+connection.onstream = function(event) {
+    if (connection.isInitiator && event.type !== 'local') {
+        return;
+    }
+
+    connection.isUpperUserLeft = false;
+    videoPreview.srcObject = event.stream;
+    videoPreview.play();
+
+    videoPreview.userid = event.userid;
+
+    if (event.type === 'local') {
+        videoPreview.muted = true;
+    }
+
+    if (connection.isInitiator == false && event.type === 'remote') {
+        connection.dontCaptureUserMedia = true;
+        connection.attachStreams = [event.stream];
+        connection.sdpConstraints.mandatory = {
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
+        };
+
+        var socket = connection.getSocket();
+        socket.emit('can-relay-broadcast');
+
+        if (connection.DetectRTC.browser.name === 'Chrome') {
+            connection.getAllParticipants().forEach(function(p) {
+                if (p + '' != event.userid + '') {
+                    var peer = connection.peers[p].peer;
+                    peer.getLocalStreams().forEach(function(localStream) {
+                        peer.removeStream(localStream);
+                    });
+                    event.stream.getTracks().forEach(function(track) {
+                        peer.addTrack(track, event.stream);
+                    });
+                    connection.dontAttachStream = true;
+                    connection.renegotiate(p);
+                    connection.dontAttachStream = false;
+                }
+            });
+        }
+        if (connection.DetectRTC.browser.name === 'Firefox') {
+            connection.getAllParticipants().forEach(function(p) {
+                if (p + '' != event.userid + '') {
+                    connection.replaceTrack(event.stream, p);
+                }
+            });
+        }
+        if (connection.DetectRTC.browser.name === 'Chrome') {
+            repeatedlyRecordStream(event.stream);
+        }
+    }
+};
+</script>
+
